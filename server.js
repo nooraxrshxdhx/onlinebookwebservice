@@ -63,10 +63,15 @@ app.post('/updatebook', async (req, res) => {
 
     try {
         let connection = await mysql.createConnection(dbConfig);
-        await connection.execute(
+        const [result] = await connection.execute(
             "UPDATE books SET title = ?, author = ? WHERE id = ?",
             [title, author, id]
         );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "No book found with id " + id });
+        }
+
         res.json({ message: "Book updated: " + id });
     } catch (err) {
         console.error(err);
@@ -82,10 +87,15 @@ app.post('/deletebook', async (req, res) => {
 
     try {
         let connection = await mysql.createConnection(dbConfig);
-        await connection.execute(
+        const [result] = await connection.execute(
             "DELETE FROM books WHERE id = ?",
             [id]
         );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "No book found with id " + id });
+        }
+
         res.json({ message: "Book deleted: " + id });
     } catch (err) {
         console.error(err);
